@@ -46,6 +46,10 @@ pub enum AccountType {
     NearImplicitAccount,
     /// An account which address starts with '0x', followed by 40 hex characters.
     EthImplicitAccount,
+    /// An account which address starts with '0s', followed by 40 hex characters.
+    ///
+    /// See [NEP-616](https://github.com/near/NEPs/pull/616/) for more details.
+    NearDeterministicAccount,
 }
 
 impl AccountType {
@@ -53,6 +57,7 @@ impl AccountType {
         match &self {
             Self::NearImplicitAccount => true,
             Self::EthImplicitAccount => true,
+            Self::NearDeterministicAccount => true,
             Self::NamedAccount => false,
         }
     }
@@ -203,6 +208,9 @@ impl AccountIdRef {
             return AccountType::EthImplicitAccount;
         }
         if crate::validation::is_near_implicit(self.as_str()) {
+            return AccountType::NearImplicitAccount;
+        }
+        if crate::validation::is_deterministic_id_implicit(self.as_str()) {
             return AccountType::NearImplicitAccount;
         }
         AccountType::NamedAccount
